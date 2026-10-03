@@ -1,21 +1,11 @@
-Câu 2:
-- Khóa ngoại hotel_id từ bảng hotel sang bảng room_type, room, booking, customer và review tạo constraints, đồng thời tự động tạo index trên các cột khóa ngoại giúp tăng tốc độ JOIN dữ liệu giữa các bảng. 
-- Bảng trung gian booking_room chứa khóa ngoại booking_id và room_id để thiết lập quan hệ many với many, giải quyết đúng yêu cầu một đơn đặt phòng có thể chứa nhiều phòng. 
-- Giữ khóa ngoại hotel_id tại bảng booking để cố định mỗi đơn hàng chỉ thuộc duy nhất một khách sạn. Thêm composite index trên cột status và created_at của bảng booking để tối ưu hiệu suất truy vấn tìm kiếm các đơn hàng quá hạn. 
--Composite index trên cột room_type_id và date của bảng room_price nhằm tăng tốc độ tra cứu giá phòng theo thời gian.
+Query 1:
+SELECT email
+FROM users
+GROUP BY email
+HAVING COUNT(*) > 1;
 
-------------------------------------
-
-Câu 3:
-- Thêm composite index trên hai cột status và created_at của bảng booking để câu lệnh tìm kiếm dữ liệu quá hạn sử dụng index scan thay vì quét toàn bộ bảng.
-- Chia nhỏ việc cập nhật thành các phần nhỏ, ví dụ mỗi lần chỉ update 5000 đến 10000 dòng thông qua vòng lặp giới hạn số lượng kèm điều kiện id và không khóa bảng quá lâu và không gây tràn bộ nhớ.
-- Áp dụng kỹ thuật phân vùng bảng booking theo khoảng thời gian của trường created_at nhằm giúp hệ thống quản lý, thao tác và xóa hoặc cập nhật dữ liệu cũ nhanh chóng hơn.
-
-------------------------------------
-
-Câu 4:
-- Sử dụng trạng thái vô hiệu hóa giao diện kết hợp kỹ thuật debounce tại tầng client.
-- Sử dụng cơ chế khóa phân tán trên Redis dựa trên idempotency key tại tầng ứng dụng.
-- Áp dụng idempotency key kết hợp middleware lọc request trùng lặp trước khi xử lý nghiệp vụ.
-- Khóa dòng dữ liệu đơn hàng ngay trong CSDL để các request gửi đến sau phải đợi xử lý xong hoặc bị từ chối.
-- Thiết lập ràng buộc unique constraint trên bảng CSDL để ngăn chặn việc ghi trùng lặp dữ liệu giao dịch.
+Query 2:
+DELETE u1 FROM users u1
+INNER JOIN users u2
+ON u1.email = u2.email 
+AND u1.id > u2.id;

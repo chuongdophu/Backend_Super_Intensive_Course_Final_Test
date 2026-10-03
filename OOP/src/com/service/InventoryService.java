@@ -1,10 +1,16 @@
 package com.service;
 
 import com.model.Product;
+import com.model.OrderItem;
 import com.repository.ProductRepository;
+import com.repository.OrderRepository;
+import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
 
 public class InventoryService {
     private ProductRepository productRepository = new ProductRepository();
+    private OrderRepository orderRepository = new OrderRepository();
 
     public void addProduct(String name, double price) {
         if (name == null || name.trim().isEmpty()) {
@@ -37,5 +43,44 @@ public class InventoryService {
         }
         product.setStock(newStock);
         System.out.println(product.getName() + " stock = " + product.getStock());
+    }
+
+    public void buy(Map<String, Integer> cart) {
+        for (Map.Entry<String, Integer> entry : cart.entrySet()) {
+            Product product = productRepository.findByName(entry.getKey());
+            if (product == null) {
+                System.out.println("Product not found: " + entry.getKey());
+                return;
+            }
+            if (product.getStock() < entry.getValue()) {
+                System.out.println("Insufficient stock for: " + entry.getKey());
+                return;
+            }
+        }
+
+        List<OrderItem> items = new ArrayList<>();
+        double total = 0;
+
+        for (Map.Entry<String, Integer> entry : cart.entrySet()) {
+            Product product = productRepository.findByName(entry.getKey());
+            int qty = entry.getValue();
+            product.setStock(product.getStock() - qty);
+            items.add(new OrderItem(product.getName(), product.getPrice(), qty));
+            total += product.getPrice() * qty;
+        }
+
+        String orderCode = orderRepository.generateOrderCode();
+
+        System.out.println("Order Code: " + orderCode);
+        System.out.println("Items:");
+        for (OrderItem item : items) {
+            System.out.println(item.getProductName() + " x " + item.getQuantity() + " $" + (int) item.getPrice());
+        }
+        System.out.println("\nTotal: $" + (int) total);
+        System.out.println("\nInventory:");
+        for (Map.Entry<String, Integer> entry : cart.entrySet()) {
+            Product product = productRepository.findByName(entry.getKey());
+            System.out.println(product.getName() + " stock = " + product.getStock());
+        }
     }
 }

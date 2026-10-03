@@ -4,8 +4,21 @@ FROM users
 GROUP BY email
 HAVING COUNT(*) > 1;
 
+-----
+
 Query 2:
 DELETE u1 FROM users u1
 INNER JOIN users u2
 ON u1.email = u2.email 
 AND u1.id > u2.id;
+
+-----
+
+Câu "Find overlapping time ranges":
+SELECT DISTINCT b1.*
+FROM bookings b1
+JOIN bookings b2 
+  ON b1.room_id = b2.room_id 
+  AND b1.id <> b2.id 
+  AND b1.start_time < b2.end_time 
+  AND b2.start_time < b1.end_time;
